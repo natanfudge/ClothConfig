@@ -1,160 +1,192 @@
-import java.text.SimpleDateFormat
+buildscript {
+    repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.+'
+    }
+}
 
 plugins {
-    id 'fabric-loom' version '0.2.5-SNAPSHOT'
-    id 'maven-publish'
-    id 'maven'
-    id 'signing'
-    id 'com.jfrog.bintray' version '1.8.4'
+//    id 'maven-publish'
+//    id 'maven'
+//    id 'signing'
+//    id 'com.jfrog.bintray' version '1.8.4'
     id 'com.matthewprenger.cursegradle' version '1.4.0'
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'eclipse'
 
-group = "me.shedaniel.cloth"
-archivesBaseName = "config-2"
-version = ((String) project.mod_version).contains("unstable") ? (project.mod_version + "." + buildTime()) : project.mod_version
+version = "2.0"
+group = "me.shedaniel.cloth" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "ClothConfig2"
+
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 minecraft {
-}
+    // the mappings can be changed at any time, and must be in the following format.
+    // snapshot_YYYYMMDD   snapshot are built nightly.
+    // stable_#            stables are built at the discretion of the MCP team.
+    // Use non-default mappings at your own risk. they may not always work.
+    // simply re-run your setup task after changing the mappings to update your workspace.
+    mappings channel: 'snapshot', version: '20191218-1.14.3'
+    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
-processResources {
-    filesMatching('fabric.mod.json') {
-        expand 'version': project.version
+    //accessTransformer = file('my_at.cfg')
+
+    // default run configurations.
+    // these can be tweaked, removed, or duplicated as needed.
+    runs {
+        client {
+            workingDirectory project.file('run')
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                examplemod {
+                    source sourceSets.main
+                }
+            }
+        }
     }
-    inputs.property "version", project.version
-}
-
-static def buildTime() {
-    def df = new SimpleDateFormat("yyyyMMddHHmm")
-    df.setTimeZone(TimeZone.getTimeZone("UTC"))
-    return df.format(new Date())
 }
 
 dependencies {
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_version}"
-    modApi "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
-    modApi "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "io.github.prospector:modmenu:${modmenu_version}"
-    compileOnly "com.google.code.findbugs:jsr305:3.0.2"
+    minecraft 'net.minecraftforge:forge:1.15.1-30.0.7'
 }
 
-bintray {
-    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
-    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_KEY')
-    publications = ["MyPublication"]
-    override = true
-    pkg {
-        repo = "cloth-config-2"
-        name = "config-2"
-        userOrg = "shedaniel"
-        licenses = ["Unlicense"]
-        version {
-            name = project.version
-            vcsTag = project.version
-            released = new Date()
-            desc = "Cloth Config API for Minecraft"
-            githubRepo = 'shedaniel/ClothConfig'
-            websiteUrl = 'https://github.com/shedaniel/ClothConfig'
-            issueTrackerUrl = 'https://github.com/shedaniel/ClothConfig/issues'
-            vcsUrl = 'https://github.com/shedaniel/ClothConfig.git'
-            gpg {
-                sign = true
-            }
-//            mavenCentralSync {
-//                sync = true //[Default: true] Determines whether to sync the version to Maven Central.
-//                user = project.hasProperty('ossToken') ? project.property('ossToken') : System.getenv('OSS_TOKEN')
-//                OSS user token: mandatory
-//                password = project.hasProperty('ossPass') ? project.property('ossPass') : System.getenv('OSS_PASS')
-            //OSS user password: mandatory
-//                close = '1'
-            //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+jar {
+    manifest {
+        attributes(["Specification-Title"     : "examplemod",
+                    "Specification-Vendor"    : "examplemodsareus",
+                    "Specification-Version"   : "1", // We are version 1 of the modlauncher specification
+                    "Implementation-Title"    : project.name,
+                    "Implementation-Version"  : "${version}",
+                    "Implementation-Vendor"   : "examplemodsareus",
+                    "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
+    }
+}
+
+//bintray {
+//    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+//    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_KEY')
+//    publications = ["MyPublication"]
+//    override = true
+//    pkg {
+//        repo = "cloth-config-2"
+//        name = "config-2-forge"
+//        userOrg = "shedaniel"
+//        licenses = ["Unlicense"]
+//        version {
+//            name = project.version
+//            vcsTag = project.version
+//            released = new Date()
+//            desc = "Cloth Config API for Minecraft"
+//            githubRepo = 'shedaniel/ClothConfig'
+//            websiteUrl = 'https://github.com/shedaniel/ClothConfig'
+//            issueTrackerUrl = 'https://github.com/shedaniel/ClothConfig/issues'
+//            vcsUrl = 'https://github.com/shedaniel/ClothConfig.git'
+//            gpg {
+//                sign = true
 //            }
-        }
-    }
-}
+////            mavenCentralSync {
+////                sync = true //[Default: true] Determines whether to sync the version to Maven Central.
+////                user = project.hasProperty('ossToken') ? project.property('ossToken') : System.getenv('OSS_TOKEN')
+////                OSS user token: mandatory
+////                password = project.hasProperty('ossPass') ? project.property('ossPass') : System.getenv('OSS_PASS')
+//            //OSS user password: mandatory
+////                close = '1'
+//            //Optional property. By default the staging repository is closed and artifacts are released to Maven Central. You can optionally turn this behaviour off (by puting 0 as value) and release the version manually.
+////            }
+//        }
+//    }
+//}
 
-// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-// if it is present.
-// If you remove this task, sources will not be generated.
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocs(type: Javadoc) {
-    source = sourceSets.main.allJava
-}
-
-task javadocsJar(type: Jar, dependsOn: javadocs) {
-    classifier = "javadocs"
-    from javadocs.destinationDir
-}
-
-publishing {
-    publications {
-        MyPublication(MavenPublication) {
-            artifact(file("${project.buildDir}/libs/${project.archivesBaseName}-${project.version}.jar")) {
-                builtBy remapJar
-            }
-            artifact(sourcesJar) {
-                builtBy remapSourcesJar
-            }
-            artifact javadocsJar
-            groupId 'me.shedaniel.cloth'
-            artifactId 'config-2'
-            version = project.version
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('description', 'Cloth Config API for Minecraft')
-                root.appendNode('name', 'config-2')
-                root.appendNode('url', 'https://github.com/shedaniel/ClothConfig')
-                root.appendNode('packaging', 'jar')
-                def license = root.appendNode('licenses').appendNode('license')
-                license.appendNode('name', 'Unlicense')
-                license.appendNode('url', 'http://unlicense.org')
-                license.appendNode('distribution', 'repo')
-                def developers = root.appendNode('developers')
-                def shedaniel = developers.appendNode('developer')
-                shedaniel.appendNode('id', 'shedaniel')
-                shedaniel.appendNode('name', 'shedaniel')
-                shedaniel.appendNode('email', 'daniel@shedaniel.me')
-                def scm = root.appendNode('scm')
-                scm.appendNode('url', "https://github.com/shedaniel/ClothConfig")
-                scm.appendNode('connection', "scm:git:git://github.com/shedaniel/ClothConfig.git")
-                scm.appendNode('developerConnection', "scm:git:ssh://github.com:shedaniel/ClothConfig.git")
-            }
-        }
-    }
-
-    // select the repositories you want to publish to
-    repositories {
-        // uncomment to publish to the local maven
-        // mavenLocal()
-    }
-}
+//task sourcesJar(type: Jar, dependsOn: classes) {
+//    classifier = 'sources'
+//    from sourceSets.main.allSource
+//}
+//
+//task javadocJar(type: Jar, dependsOn: javadoc) {
+//    classifier = 'javadoc'
+//    from javadoc.destinationDir
+//}
+//
+//artifacts {
+//    archives sourcesJar
+//    archives javadocJar
+//}
+//
+//publishing {
+//    publications {
+//        mavenJava(MavenPublication) {
+//            artifact jar
+//            artifact sourcesJar
+//            artifact javadocsJar
+//            groupId 'me.shedaniel.cloth'
+//            artifactId 'config-2'
+//            version = project.version
+//            pom.withXml {
+//                def root = asNode()
+//                root.appendNode('description', 'Cloth Config API for Minecraft')
+//                root.appendNode('name', 'config-2-forge')
+//                root.appendNode('url', 'https://github.com/shedaniel/ClothConfig')
+//                root.appendNode('packaging', 'jar')
+//                def license = root.appendNode('licenses').appendNode('license')
+//                license.appendNode('name', 'Unlicense')
+//                license.appendNode('url', 'http://unlicense.org')
+//                license.appendNode('distribution', 'repo')
+//                def developers = root.appendNode('developers')
+//                def shedaniel = developers.appendNode('developer')
+//                shedaniel.appendNode('id', 'shedaniel')
+//                shedaniel.appendNode('name', 'shedaniel')
+//                shedaniel.appendNode('email', 'daniel@shedaniel.me')
+//                def scm = root.appendNode('scm')
+//                scm.appendNode('url', "https://github.com/shedaniel/ClothConfig")
+//                scm.appendNode('connection', "scm:git:git://github.com/shedaniel/ClothConfig.git")
+//                scm.appendNode('developerConnection', "scm:git:ssh://github.com:shedaniel/ClothConfig.git")
+//            }
+//        }
+//    }
+//
+//    // select the repositories you want to publish to
+//    repositories {
+//        // uncomment to publish to the local maven
+//        // mavenLocal()
+//    }
+//}
 
 curseforge {
     apiKey = project.hasProperty('apiKey') ? project.property('apiKey') : System.getenv('CF_API_KEY')
     if (apiKey != null)
         project {
-            id = '319057'
+            id = '348521'
             releaseType = 'release'
+            addGameVersion '1.15'
+            addGameVersion '1.15.1'
             addGameVersion '1.15-Snapshot'
             addGameVersion 'Java 8'
-            relations {
-                requiredDependency 'fabric-api'
+            mainArtifact(jar) {
+                displayName = "[Forge 1.15.x] ClothConfig2-$project.version"
             }
-            mainArtifact(file("${project.buildDir}/libs/${project.archivesBaseName}-${project.version}.jar")) {
-                displayName = "[Fabric ${project.minecraft_version}] ClothConfig2-$project.version"
-            }
-            addArtifact(file("${project.buildDir}/libs/${project.archivesBaseName}-${project.version}-sources.jar"))
-            afterEvaluate {
-                uploadTask.dependsOn("remapJar")
-                uploadTask.dependsOn("remapSourcesJar")
-            }
+//            addArtifact(sourcesJar)
         }
     options {
         forgeGradleIntegration = false

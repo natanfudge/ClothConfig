@@ -1,0 +1,13 @@
+modLoader="javafml" #mandatory
+loaderVersion="[29,)" #mandatory (24 is current forge version)
+issueTrackerURL="https://github.com/shedaniel/ClothConfig/issues/" #optional
+displayURL="http://shedaniel.me/" #optional
+logoFile="icon.png" #optional
+authors="shedaniel" #optional
+[[mods]] #mandatory
+modId="cloth-config2" #mandatory
+version="${file.jarVersion}" #mandatory
+displayName="Cloth Config Forge v2 API" #mandatory
+description='''
+An API for config screens.
+'''
